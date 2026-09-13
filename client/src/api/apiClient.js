@@ -15,7 +15,7 @@ export const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true, // Automatically sends and receives httpOnly cookies across CORS
-  timeout: 45000, // 45 seconds for deep crawler & multi-pass LLM pipeline
+  timeout: 120000, // 120 seconds for deep crawler & multi-pass LLM pipeline
 });
 
 // ── Request Interceptor ─────────────────────────────────────────────────────

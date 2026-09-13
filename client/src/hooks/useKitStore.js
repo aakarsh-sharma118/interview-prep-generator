@@ -307,4 +307,27 @@ export const useKitStore = create((set, get) => ({
       return { success: false, error: err.message };
     }
   },
+
+  /**
+   * Deletes a preparation kit by ID and updates local state.
+   *
+   * @param {string} kitId - Kit identifier to delete.
+   * @returns {Promise<{ success: boolean, error?: string }>}
+   */
+  deleteKit: async (kitId) => {
+    try {
+      const response = await apiClient.delete(ApiUrls.KIT_DELETE(kitId));
+      if (response.success) {
+        set((state) => ({
+          kitsList: state.kitsList.filter((k) => k._id !== kitId),
+          activeKit: state.activeKit?._id === kitId ? null : state.activeKit,
+        }));
+        return { success: true };
+      }
+      return { success: false, error: response.error?.message || 'Delete failed' };
+    } catch (err) {
+      logger.error('Failed to delete preparation kit', err);
+      return { success: false, error: err.message || 'Failed to delete preparation kit' };
+    }
+  },
 }));

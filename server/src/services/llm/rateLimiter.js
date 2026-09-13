@@ -18,7 +18,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
  * Token bucket and concurrency queue protecting free-tier rate limits.
  */
 class RateLimiter {
-  constructor(maxRequestsPerMinute = 15, maxConcurrent = 2) {
+  constructor(maxRequestsPerMinute = 15, maxConcurrent = 4) {
     this.maxRequestsPerMinute = maxRequestsPerMinute;
     this.maxConcurrent = maxConcurrent;
     this.activeRequests = 0;

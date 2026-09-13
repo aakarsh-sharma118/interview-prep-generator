@@ -70,8 +70,9 @@ export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 // Selected AI model provider identifier (gemini | groq | openai | mock)
 export const LLM_PROVIDER = process.env.LLM_PROVIDER || 'gemini';
 
-// Google Gemini API secret key
+// Google Gemini API secret key and model configuration
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+export const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
 
 // Groq API secret key
 export const GROQ_API_KEY = process.env.GROQ_API_KEY || '';

@@ -25,12 +25,19 @@ export const errorHandler = (err, req, res, _next) => {
   });
 
   const statusCode = err.status || HTTP_STATUS.INTERNAL_SERVER_ERROR;
+  const isProd = process.env.NODE_ENV === 'production';
+  const isInternal500 = !err.status || err.status === HTTP_STATUS.INTERNAL_SERVER_ERROR;
+
+  // Never leak internal server exception details or database diagnostics in production
+  const safeMessage = (isProd && isInternal500)
+    ? 'An unexpected error occurred while processing your request.'
+    : (err.message || 'An unexpected error occurred while processing your request.');
 
   return res.status(statusCode).json({
     success: false,
     error: {
       code: err.code || 'INTERNAL_SERVER_ERROR',
-      message: err.message || 'An unexpected error occurred while processing your request.',
+      message: safeMessage,
     },
   });
 };

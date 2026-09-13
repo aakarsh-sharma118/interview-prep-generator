@@ -13,6 +13,7 @@ vi.mock('../api/apiClient.js', () => ({
     post: vi.fn(),
     get: vi.fn(),
     put: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
@@ -166,5 +167,24 @@ describe('useKitStore', () => {
     expect(result.success).toBe(true);
     const state = useKitStore.getState();
     expect(state.isDirty).toBe(false);
+  });
+
+  it('deletes a preparation kit and updates store state', async () => {
+    useKitStore.setState({
+      kitsList: [mockKit, { ...mockKit, _id: 'kit-456' }],
+      activeKit: mockKit,
+    });
+
+    apiClient.delete.mockResolvedValueOnce({
+      success: true,
+      message: 'Preparation kit deleted successfully.',
+    });
+
+    const result = await useKitStore.getState().deleteKit('kit-123');
+    expect(result.success).toBe(true);
+    const state = useKitStore.getState();
+    expect(state.kitsList).toHaveLength(1);
+    expect(state.kitsList[0]._id).toBe('kit-456');
+    expect(state.activeKit).toBeNull();
   });
 });

@@ -6,7 +6,7 @@
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { GEMINI_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, LLM_PROVIDER } from '../../config/env.js';
+import { GEMINI_API_KEY, GEMINI_MODEL, GROQ_API_KEY, OPENAI_API_KEY, LLM_PROVIDER } from '../../config/env.js';
 import { logger } from '../../utils/logger.js';
 import { llmRateLimiter } from './rateLimiter.js';
 
@@ -38,15 +38,38 @@ export const callLLM = async (systemInstruction, userPrompt) => {
     // ── 1. Google Gemini Provider ──────────────────────────────────────────
     if (GEMINI_API_KEY && (LLM_PROVIDER === 'gemini' || !GROQ_API_KEY)) {
       const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({
-        model: 'gemini-1.5-flash',
-        generationConfig: { responseMimeType: 'application/json' },
-        systemInstruction,
-      });
+      const modelCandidates = [
+        GEMINI_MODEL,
+        'gemini-3.6-flash',
+        'gemini-3.5-flash',
+        'gemini-3.1-flash-lite',
+        'gemini-flash-latest',
+      ].filter((m, i, arr) => m && arr.indexOf(m) === i);
 
-      const result = await model.generateContent(userPrompt);
-      const response = await result.response;
-      return response.text();
+      let lastError = null;
+      for (const modelName of modelCandidates) {
+        try {
+          const model = genAI.getGenerativeModel({
+            model: modelName,
+            generationConfig: { responseMimeType: 'application/json' },
+            systemInstruction,
+          });
+
+          const result = await model.generateContent(userPrompt);
+          const response = await result.response;
+          return response.text();
+        } catch (err) {
+          lastError = err;
+          logger.warn(`Gemini generation on model ${modelName} encountered an issue, testing next candidate`, {
+            error: err.message,
+          });
+        }
+      }
+
+      logger.error('All Gemini model candidates failed, gracefully falling back to deterministic offline engine', {
+        error: lastError?.message,
+      });
+      return generateOfflineMockResponse(systemInstruction, userPrompt);
     }
 
     // ── 2. Groq Provider ───────────────────────────────────────────────────

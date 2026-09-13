@@ -9,7 +9,7 @@ import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
-import { ALLOWED_ORIGINS, PORT } from './config/env.js';
+import { ALLOWED_ORIGINS, PORT, NODE_ENV } from './config/env.js';
 import { connectDatabase } from './connections/database.js';
 import { errorHandler } from './middlewares/errorMiddleware.js';
 import authRoutes from './routes/authRoutes.js';
@@ -40,16 +40,19 @@ app.use(
 // Cookie parsing for secure httpOnly tokens
 app.use(cookieParser());
 
-// CORS configuration supporting credentials and custom origins
+// CORS configuration supporting credentials and verified origins
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (curl, mobile, batch runner)
+      // Allow requests with no origin (curl, server-to-server, batch evaluation runner)
       if (!origin) return callback(null, true);
       if (ALLOWED_ORIGINS.includes(origin) || ALLOWED_ORIGINS.includes('*')) {
         return callback(null, true);
       }
-      return callback(null, true);
+      if (NODE_ENV !== 'production') {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS policy'));
     },
     credentials: true,
   })

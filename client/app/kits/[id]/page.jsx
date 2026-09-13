@@ -23,6 +23,7 @@ import {
   Building2,
   CheckCircle2,
   Calendar,
+  Trash2,
 } from 'lucide-react';
 import { BentoGridBuilder } from '../../../src/components/builder/BentoGridBuilder.jsx';
 import { GapAnalyzerMatrix } from '../../../src/components/coverage/GapAnalyzerMatrix.jsx';
@@ -37,9 +38,20 @@ export default function KitDetailPage() {
   const router = useRouter();
   const kitId = params.id;
 
-  const { activeKit, fetchKitById, isLoading, error } = useKitStore();
+  const { activeKit, fetchKitById, deleteKit, isLoading, error } = useKitStore();
   const [isMockModalOpen, setIsMockModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [activeTab, setActiveTab] = useState('all'); // 'all' | 'workspace' | 'visualizer' | 'coverage'
+
+  const handleDeleteKit = async () => {
+    setIsDeleting(true);
+    const res = await deleteKit(kitId);
+    setIsDeleting(false);
+    if (res.success) {
+      router.push(RoutePaths.KITS);
+    }
+  };
 
   useEffect(() => {
     router.prefetch(RoutePaths.KITS);
@@ -157,6 +169,17 @@ export default function KitDetailPage() {
             <Play className="w-3.5 h-3.5 fill-current" />
             <span>{PageStrings.NAV_PRACTICE}</span>
           </Link>
+
+          <button
+            type="button"
+            onClick={() => setIsDeleteModalOpen(true)}
+            title="Delete this preparation kit"
+            aria-label="Delete preparation kit"
+            className="btn btn-sm btn-ghost border border-theme-border text-xs font-mono text-theme-text-muted hover:text-rose-500 hover:border-rose-500/30 rounded-xl flex items-center gap-1.5"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Delete</span>
+          </button>
         </div>
       </div>
 
@@ -310,6 +333,45 @@ export default function KitDetailPage() {
         questions={activeKit.questions}
         roleTitle={activeKit.role.title}
       />
+
+      {/* ── Delete Confirmation Modal ────────────────────────────────────── */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-theme-surface border border-theme-border rounded-3xl p-6 sm:p-8 max-w-md w-full space-y-4 shadow-2xl">
+            <div className="flex items-center space-x-3 text-rose-500">
+              <div className="p-2.5 rounded-2xl bg-rose-500/10 border border-rose-500/20">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-theme-text-primary font-display">Delete Preparation Kit?</h3>
+                <p className="text-xs text-theme-text-muted font-mono">This action cannot be undone.</p>
+              </div>
+            </div>
+            <p className="text-xs text-theme-text-secondary leading-relaxed font-sans">
+              Are you sure you want to permanently delete the preparation kit for <strong className="text-theme-text-primary">{activeKit.role.title}</strong> at <strong className="text-theme-text-primary">{activeKit.source.company || 'Target Company'}</strong>?
+            </p>
+            <div className="flex items-center justify-end space-x-2 pt-2 border-t border-theme-border">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="btn btn-sm btn-ghost border border-theme-border text-xs font-mono text-theme-text-secondary hover:text-theme-text-primary"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={handleDeleteKit}
+                className="btn btn-sm btn-outline border-rose-500/40 text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl text-xs font-medium flex items-center gap-1.5"
+              >
+                {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                <span>{isDeleting ? 'Deleting...' : 'Delete Kit'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

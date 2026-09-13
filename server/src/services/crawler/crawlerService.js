@@ -42,13 +42,6 @@ const MAX_PAYLOAD_BYTES = 2 * 1024 * 1024;
 const crawlCache = new Map();
 const CRAWL_CACHE_TTL_MS = 15 * 60 * 1000;
 
-/**
- * Polite asynchronous delay between crawler requests.
- *
- * @param {number} durationMs - Milliseconds to sleep.
- * @returns {Promise<void>}
- */
-const politeDelay = (durationMs = 200) => new Promise((resolve) => setTimeout(resolve, durationMs));
 
 /**
  * Fetches and parses robots.txt for a host to evaluate crawl allowance.
@@ -291,30 +284,31 @@ export const crawlCompanySite = async (companyUrl) => {
   const candidateList = Array.from(discoveredLinksMap.values());
   const rankedLinks = rankDiscoveredLinks(candidateList);
 
-  // 4. Fetch Top Ranked Links (Up to CRAWLER_MAX_PAGES - 1)
+  // 4. Fetch Top Ranked Links in Parallel (Up to CRAWLER_MAX_PAGES - 1)
   const maxSubpages = Math.max(1, CRAWLER_MAX_PAGES - 1);
   const selectedLinks = rankedLinks.slice(0, maxSubpages);
+  const allowedLinks = selectedLinks.filter((link) => !robots || robots.isAllowed(link.url, 'InterviewPrepBot'));
 
-  for (const link of selectedLinks) {
-    // Check robots.txt permissions
-    if (robots && !robots.isAllowed(link.url, 'InterviewPrepBot')) {
-      logger.info('Skipping URL disallowed by robots.txt', { url: link.url });
-      continue;
-    }
+  const crawlResults = await Promise.allSettled(
+    allowedLinks.map(async (link) => {
+      logger.info('Crawling ranked subpage', { url: link.url, score: link.score });
+      const subpageResult = await fetchCleanPage(link.url);
+      return { link, subpageResult };
+    })
+  );
 
-    // Polite delay between crawls
-    await politeDelay(200);
-
-    logger.info('Crawling ranked subpage', { url: link.url, score: link.score });
-    const subpageResult = await fetchCleanPage(link.url);
-    if (subpageResult.ok && subpageResult.text.length > 50) {
-      crawledPages.push({
-        url: link.url,
-        title: subpageResult.title,
-        text: subpageResult.text,
-        type: link.url.includes('career') || link.url.includes('job') ? 'hiring' : 'about',
-      });
-      pagesUsed.push(link.url);
+  for (const item of crawlResults) {
+    if (item.status === 'fulfilled') {
+      const { link, subpageResult } = item.value;
+      if (subpageResult && subpageResult.ok && subpageResult.text && subpageResult.text.length > 50) {
+        crawledPages.push({
+          url: link.url,
+          title: subpageResult.title,
+          text: subpageResult.text,
+          type: link.url.includes('career') || link.url.includes('job') ? 'hiring' : 'about',
+        });
+        pagesUsed.push(link.url);
+      }
     }
   }
 

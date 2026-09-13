@@ -78,21 +78,22 @@ export const runKitGenerationPipeline = async ({
     const technicalReqs = role.requirements.filter((r) => r.kind === 'technical');
     const behaviouralReqs = role.requirements.filter((r) => r.kind === 'behavioural');
     const domainReqs = role.requirements.filter((r) => r.kind === 'domain');
+    const systemDesignReqs = role.requirements.filter((r) => r.text.toLowerCase().includes('design') || r.text.toLowerCase().includes('system') || r.text.toLowerCase().includes('architect'));
 
     const companyContext = `${companyBrief.summary} ${companyBrief.what_they_do}`;
 
-    // Generate questions for each category
-    const technicalQuestions = await generateQuestionsForCategory(technicalReqs, companyContext, 'technical', 1);
-    const behaviouralQuestions = await generateQuestionsForCategory(behaviouralReqs, companyContext, 'behavioural', technicalQuestions.length + 1);
-    const domainQuestions = await generateQuestionsForCategory(domainReqs, companyContext, 'company-fit', technicalQuestions.length + behaviouralQuestions.length + 1);
+    // Generate questions for all categories in parallel
+    const [technicalQuestions, behaviouralQuestions, domainQuestions, systemDesignQuestions] = await Promise.all([
+      generateQuestionsForCategory(technicalReqs, companyContext, 'technical', 1),
+      generateQuestionsForCategory(behaviouralReqs, companyContext, 'behavioural', 1),
+      generateQuestionsForCategory(domainReqs, companyContext, 'company-fit', 1),
+      systemDesignReqs.length > 0
+        ? generateQuestionsForCategory(systemDesignReqs, companyContext, 'system-design', 1)
+        : Promise.resolve([]),
+    ]);
 
-    // If candidate has system design / senior requirements, add architecture questions
-    const systemDesignReqs = role.requirements.filter((r) => r.text.toLowerCase().includes('design') || r.text.toLowerCase().includes('system') || r.text.toLowerCase().includes('architect'));
-    const systemDesignQuestions = systemDesignReqs.length > 0
-      ? await generateQuestionsForCategory(systemDesignReqs, companyContext, 'system-design', technicalQuestions.length + behaviouralQuestions.length + domainQuestions.length + 1)
-      : [];
-
-    let questions = [...technicalQuestions, ...behaviouralQuestions, ...domainQuestions, ...systemDesignQuestions];
+    const rawQuestions = [...technicalQuestions, ...behaviouralQuestions, ...domainQuestions, ...systemDesignQuestions];
+    let questions = rawQuestions.map((q, idx) => ({ ...q, id: `q${idx + 1}` }));
 
     // Ensure questions are not completely empty
     if (questions.length === 0) {

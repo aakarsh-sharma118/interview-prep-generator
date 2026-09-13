@@ -18,6 +18,7 @@ import {
   ArrowRight,
   FileText,
   Loader2,
+  Trash2,
 } from 'lucide-react';
 import { useKitStore } from '../../src/hooks/useKitStore.js';
 import { useAuthStore } from '../../src/hooks/useAuthStore.js';
@@ -29,12 +30,22 @@ import { PageStrings } from '../../src/utils/pageStrings.js';
 export default function KitsDashboardPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading: authLoading } = useAuthStore();
-  const { kitsList, fetchKitsList, isLoading } = useKitStore();
+  const { kitsList, fetchKitsList, deleteKit, isLoading } = useKitStore();
 
   const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
   const [batchFileText, setBatchFileText] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [batchError, setBatchError] = useState(null);
+  const [kitToDelete, setKitToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleConfirmDelete = async () => {
+    if (!kitToDelete) return;
+    setIsDeleting(true);
+    await deleteKit(kitToDelete._id);
+    setIsDeleting(false);
+    setKitToDelete(null);
+  };
 
   useEffect(() => {
     router.prefetch(RoutePaths.HOME);
@@ -156,10 +167,25 @@ export default function KitsDashboardPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs font-mono text-theme-text-muted">
                   <span className="truncate max-w-[150px] font-medium text-brand-indigo">{kit.source.company || 'Direct Posting'}</span>
-                  <span className="text-brand-emerald flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    Verified
-                  </span>
+                  <div className="flex items-center space-x-1.5">
+                    <span className="text-brand-emerald flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      Verified
+                    </span>
+                    <button
+                      type="button"
+                      title="Delete Kit"
+                      aria-label={`Delete ${kit.role.title}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setKitToDelete(kit);
+                      }}
+                      className="p-1 rounded-lg text-theme-text-muted hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
                 <h2 className="text-lg font-display font-bold text-theme-text-primary group-hover:text-brand-indigo transition-colors leading-snug">
                   {kit.role.title}
@@ -231,6 +257,45 @@ export default function KitsDashboardPage() {
               >
                 {isUploading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 <span>Process Batch</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Delete Confirmation Modal ────────────────────────────────────── */}
+      {kitToDelete && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-theme-surface border border-theme-border rounded-3xl p-6 sm:p-8 max-w-md w-full space-y-4 shadow-2xl">
+            <div className="flex items-center space-x-3 text-rose-500">
+              <div className="p-2.5 rounded-2xl bg-rose-500/10 border border-rose-500/20">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-theme-text-primary font-display">Delete Preparation Kit?</h3>
+                <p className="text-xs text-theme-text-muted font-mono">This action cannot be undone.</p>
+              </div>
+            </div>
+            <p className="text-xs text-theme-text-secondary leading-relaxed font-sans">
+              Are you sure you want to permanently delete the preparation kit for <strong className="text-theme-text-primary">{kitToDelete.role.title}</strong> at <strong className="text-theme-text-primary">{kitToDelete.source.company || 'Target Company'}</strong>?
+            </p>
+            <div className="flex items-center justify-end space-x-2 pt-2 border-t border-theme-border">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setKitToDelete(null)}
+                className="btn btn-sm btn-ghost border border-theme-border text-xs font-mono text-theme-text-secondary hover:text-theme-text-primary"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={handleConfirmDelete}
+                className="btn btn-sm btn-outline border-rose-500/40 text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl text-xs font-medium flex items-center gap-1.5"
+              >
+                {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                <span>{isDeleting ? 'Deleting...' : 'Delete Kit'}</span>
               </button>
             </div>
           </div>
