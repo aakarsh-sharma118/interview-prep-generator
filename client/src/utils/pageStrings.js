@@ -9,6 +9,7 @@ export const PageStrings = {
   // Navigation & Brand
   BRAND_NAME: 'PrepKit AI',
   AUTHOR_NAME: 'Aakarsh Sharma',
+  NAV_HOME: 'Home',
   NAV_DASHBOARD: 'My Kits',
   NAV_NEW_KIT: 'New Kit',
   NAV_PRACTICE: 'Practice',

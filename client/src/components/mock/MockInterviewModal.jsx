@@ -55,6 +55,8 @@ export const MockInterviewModal = ({ isOpen = false, onClose = () => {}, questio
       <div className="bg-theme-surface border border-theme-border rounded-3xl p-5 sm:p-8 max-w-2xl w-full space-y-6 shadow-2xl relative max-h-[92vh] overflow-y-auto transition-colors">
         {/* ── Close Button ─────────────────────────────────────────────────── */}
         <button
+          type="button"
+          aria-label="Close modal"
           onClick={onClose}
           className="absolute top-5 right-5 p-2 rounded-xl text-theme-text-muted hover:text-theme-text-primary hover:bg-theme-elevated transition-colors"
         >
@@ -102,6 +104,7 @@ export const MockInterviewModal = ({ isOpen = false, onClose = () => {}, questio
             {/* Next / Submit Button */}
             <div className="flex justify-end pt-2">
               <button
+                type="button"
                 onClick={handleNext}
                 disabled={isEvaluating}
                 className="btn btn-primary rounded-xl px-6 text-xs font-medium flex items-center gap-2"
@@ -154,6 +157,7 @@ export const MockInterviewModal = ({ isOpen = false, onClose = () => {}, questio
             </div>
 
             <button
+              type="button"
               onClick={onClose}
               className="btn btn-outline border-theme-border text-theme-text-secondary hover:text-theme-text-primary px-6 rounded-xl text-xs font-medium"
             >

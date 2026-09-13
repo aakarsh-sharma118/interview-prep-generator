@@ -145,9 +145,24 @@ export const runKitGenerationPipeline = async ({
     // ── Step 9: Assemble Final Kit & Schema Validation ──────────────────────
     const pagesUsed = crawlResult.pages_used.length > 0 ? crawlResult.pages_used : [companyUrl || 'https://example.com'];
 
+    let companyName = 'Target Company';
+    if (companyUrl) {
+      try {
+        const rawHost = new URL(companyUrl.startsWith('http') ? companyUrl : `https://${companyUrl}`).hostname.replace('www.', '').split('.')[0];
+        if (rawHost) companyName = rawHost.charAt(0).toUpperCase() + rawHost.slice(1);
+      } catch {
+        companyName = 'Target Company';
+      }
+    } else {
+      const match = safeJd.match(/(?:company|organization)\s*[:-]\s*([A-Za-z0-9\s&.-]{2,30})/i);
+      if (match && match[1].trim()) {
+        companyName = match[1].trim();
+      }
+    }
+
     const rawKit = {
       source: {
-        company: companyUrl ? new URL(companyUrl.startsWith('http') ? companyUrl : `https://${companyUrl}`).hostname.replace('www.', '') : 'Unknown Company',
+        company: companyName,
         company_url: companyUrl || '',
         role: role.title,
         location: 'Not specified',

@@ -22,12 +22,24 @@ export const connectDatabase = async () => {
   try {
     let connectionUri = MONGODB_URI;
 
-    // If no URI specified or running in test mode, launch embedded in-memory server
-    if (!connectionUri || NODE_ENV === 'test') {
-      logger.info('No external MONGODB_URI provided. Initializing in-memory MongoDB instance...');
+    // In test mode, always use isolated in-memory database
+    if (NODE_ENV === 'test') {
       memoryServer = await MongoMemoryServer.create();
       connectionUri = memoryServer.getUri();
-      logger.info('In-memory MongoDB initialized successfully', { uri: connectionUri });
+      logger.info('In-memory MongoDB initialized for testing', { uri: connectionUri });
+    } else if (!connectionUri) {
+      // Check if local MongoDB is already running on 27017
+      const localDefaultUri = 'mongodb://127.0.0.1:27017/interview_prep_db';
+      try {
+        await mongoose.connect(localDefaultUri, { serverSelectionTimeoutMS: 2000 });
+        logger.info('Connected to local MongoDB service', { uri: localDefaultUri });
+        return mongoose.connection;
+      } catch {
+        logger.info('Local MongoDB not responding. Initializing embedded in-memory MongoDB fallback...');
+        memoryServer = await MongoMemoryServer.create();
+        connectionUri = memoryServer.getUri();
+        logger.info('In-memory MongoDB initialized successfully', { uri: connectionUri });
+      }
     }
 
     // Connect via Mongoose

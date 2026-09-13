@@ -70,7 +70,7 @@ describe('API & Authentication Integration Tests', () => {
     expect(loginResponse.body.success).toBe(true);
     expect(loginResponse.body.data.token).toBeDefined();
 
-    // 3. Access protected route with token
+    // 3. Access protected route with Bearer token
     const token = loginResponse.body.data.token;
     const kitsResponse = await request(app)
       .get('/api/kits')
@@ -79,5 +79,36 @@ describe('API & Authentication Integration Tests', () => {
     expect(kitsResponse.status).toBe(200);
     expect(kitsResponse.body.success).toBe(true);
     expect(Array.isArray(kitsResponse.body.data)).toBe(true);
+  });
+
+  it('sets httpOnly cookie and authorizes protected endpoints via cookie', async () => {
+    const testEmail = `cookie_test_${Date.now()}@example.com`;
+    const registerRes = await request(app)
+      .post('/api/auth/register')
+      .send({
+        name: 'Cookie User',
+        email: testEmail,
+        password: 'securePassword123',
+      });
+
+    expect(registerRes.status).toBe(201);
+    const cookies = registerRes.headers['set-cookie'];
+    expect(cookies).toBeDefined();
+    expect(cookies.some((c) => c.includes('token=') && c.includes('HttpOnly'))).toBe(true);
+
+    // Access protected route using the cookie header
+    const kitsResponse = await request(app)
+      .get('/api/kits')
+      .set('Cookie', cookies);
+
+    expect(kitsResponse.status).toBe(200);
+    expect(kitsResponse.body.success).toBe(true);
+
+    // Test logout clearing the cookie
+    const logoutRes = await request(app).post('/api/auth/logout');
+    expect(logoutRes.status).toBe(200);
+    expect(logoutRes.body.success).toBe(true);
+    const logoutCookies = logoutRes.headers['set-cookie'];
+    expect(logoutCookies).toBeDefined();
   });
 });

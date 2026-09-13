@@ -112,6 +112,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${fontSans.variable} ${fontDisplay.variable} dark`}>
       <head>
+        <link rel="dns-prefetch" href="http://localhost:5000" />
+        <link rel="preconnect" href="http://localhost:5000" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <script
           type="application/ld+json"

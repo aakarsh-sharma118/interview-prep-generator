@@ -8,6 +8,7 @@
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { ALLOWED_ORIGINS, PORT } from './config/env.js';
 import { connectDatabase } from './connections/database.js';
 import { errorHandler } from './middlewares/errorMiddleware.js';
@@ -17,8 +18,27 @@ import { logger } from './utils/logger.js';
 
 const app = express();
 
-// Security headers
-app.use(helmet());
+// Security headers with strict Content Security Policy (CSP)
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        connectSrc: ["'self'", 'http://localhost:3000', 'http://localhost:5000', 'https://*.googleapis.com', 'https://*.groq.com'],
+        frameAncestors: ["'none'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })
+);
+
+// Cookie parsing for secure httpOnly tokens
+app.use(cookieParser());
 
 // CORS configuration supporting credentials and custom origins
 app.use(

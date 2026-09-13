@@ -24,6 +24,13 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [validationError, setValidationError] = useState(null);
 
+  // Prefetch critical navigation routes
+  React.useEffect(() => {
+    router.prefetch(RoutePaths.HOME);
+    router.prefetch(RoutePaths.LOGIN);
+    router.prefetch(RoutePaths.KITS);
+  }, [router]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !password.trim()) {
@@ -108,7 +115,7 @@ export default function RegisterPage() {
 
       <div className="text-center text-xs text-theme-text-secondary pt-2 border-t border-theme-border">
         <span>{PageStrings.HAVE_ACCOUNT_PROMPT} </span>
-        <Link href={RoutePaths.LOGIN} className="text-brand-indigo hover:underline font-semibold">
+        <Link href={RoutePaths.LOGIN} prefetch={true} className="text-brand-indigo hover:underline font-semibold">
           {PageStrings.NAV_LOGIN}
         </Link>
       </div>

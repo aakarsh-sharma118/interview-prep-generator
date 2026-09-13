@@ -17,9 +17,9 @@ vi.mock('../api/apiClient.js', () => ({
 }));
 
 describe('useAuthStore', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
-    useAuthStore.getState().logout();
+    await useAuthStore.getState().logout();
   });
 
   it('initializes with default unauthenticated state', () => {
@@ -76,14 +76,14 @@ describe('useAuthStore', () => {
     expect(state.user.email).toBe('demo@interviewprep.dev');
   });
 
-  it('clears state on logout', () => {
+  it('clears state on logout', async () => {
     useAuthStore.setState({
       user: { name: 'Demo' },
       token: 'some-token',
       isAuthenticated: true,
     });
 
-    useAuthStore.getState().logout();
+    await useAuthStore.getState().logout();
     const state = useAuthStore.getState();
     expect(state.user).toBeNull();
     expect(state.token).toBeNull();

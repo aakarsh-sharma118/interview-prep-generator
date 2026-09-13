@@ -107,6 +107,7 @@ export const BentoGridBuilder = () => {
 
         <div className="flex items-center space-x-3 self-end sm:self-auto">
           <button
+            type="button"
             onClick={() => setIsAddModalOpen(true)}
             className="btn btn-sm btn-ghost border border-theme-border text-xs font-mono text-theme-text-secondary hover:text-theme-text-primary flex items-center gap-1.5"
           >
@@ -114,6 +115,7 @@ export const BentoGridBuilder = () => {
             <span>{PageStrings.BTN_ADD_QUESTION}</span>
           </button>
           <button
+            type="button"
             onClick={saveActiveKit}
             disabled={!isDirty || isLoading}
             className="btn btn-sm btn-primary text-xs font-medium flex items-center gap-1.5 rounded-xl shadow-sm"
@@ -152,6 +154,8 @@ export const BentoGridBuilder = () => {
                 </h3>
               </div>
               <button
+                type="button"
+                aria-label={PageStrings.BTN_REGENERATE_TOOLTIP}
                 onClick={() => handleRegenerate('company_brief')}
                 title={PageStrings.BTN_REGENERATE_TOOLTIP}
                 className="p-1.5 rounded-lg hover:bg-theme-elevated text-theme-text-muted hover:text-theme-text-primary transition-colors"
@@ -275,6 +279,8 @@ export const BentoGridBuilder = () => {
                     {category.label} ({categoryQuestions.length})
                   </span>
                   <button
+                    type="button"
+                    aria-label="Regenerate this category of questions"
                     onClick={() => handleRegenerate('category', category.id)}
                     title={PageStrings.BTN_REGENERATE_TOOLTIP}
                     className="flex items-center gap-1 text-[11px] font-mono text-theme-text-muted hover:text-brand-emerald transition-colors"
@@ -333,6 +339,8 @@ export const BentoGridBuilder = () => {
                           {/* Action Controls: Pin, Delete */}
                           <div className="flex items-center gap-1.5">
                             <button
+                              type="button"
+                              aria-label={isPinned ? PageStrings.BTN_UNPIN : PageStrings.BTN_PIN}
                               onClick={() => togglePinQuestion(question.id)}
                               title={isPinned ? PageStrings.BTN_UNPIN : PageStrings.BTN_PIN}
                               className={`p-1.5 rounded-lg transition-colors ${
@@ -344,6 +352,8 @@ export const BentoGridBuilder = () => {
                               {isPinned ? <Pin className="w-3.5 h-3.5" /> : <PinOff className="w-3.5 h-3.5" />}
                             </button>
                             <button
+                              type="button"
+                              aria-label={PageStrings.BTN_DELETE_QUESTION}
                               onClick={() => deleteQuestion(question.id)}
                               title={PageStrings.BTN_DELETE_QUESTION}
                               className="p-1.5 rounded-lg text-theme-text-muted hover:text-rose-500 transition-colors"
@@ -408,6 +418,8 @@ export const BentoGridBuilder = () => {
                 </h3>
               </div>
               <button
+                type="button"
+                aria-label={PageStrings.BTN_REGENERATE_TOOLTIP}
                 onClick={() => handleRegenerate('schedule')}
                 title={PageStrings.BTN_REGENERATE_TOOLTIP}
                 className="p-1.5 rounded-lg hover:bg-theme-elevated text-theme-text-muted hover:text-theme-text-primary transition-colors"
@@ -496,12 +508,14 @@ export const BentoGridBuilder = () => {
 
             <div className="flex items-center justify-end space-x-2 pt-2">
               <button
+                type="button"
                 onClick={() => setIsAddModalOpen(false)}
                 className="btn btn-sm btn-ghost text-theme-text-secondary"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleCreateManualQuestion}
                 className="btn btn-sm btn-primary rounded-xl"
               >

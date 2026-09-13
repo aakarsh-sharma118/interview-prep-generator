@@ -18,6 +18,7 @@ describe('App Constants & Route Helpers', () => {
   it('generates correct API URLs', () => {
     expect(ApiUrls.AUTH_LOGIN).toBe('/api/auth/login');
     expect(ApiUrls.AUTH_REGISTER).toBe('/api/auth/register');
+    expect(ApiUrls.AUTH_LOGOUT).toBe('/api/auth/logout');
     expect(ApiUrls.KITS_GENERATE).toBe('/api/kits/generate');
     expect(ApiUrls.KIT_BY_ID('kit-99')).toBe('/api/kits/kit-99');
     expect(ApiUrls.KIT_REGENERATE_SECTION('kit-99')).toBe('/api/kits/kit-99/regenerate-section');

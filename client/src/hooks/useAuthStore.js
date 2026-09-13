@@ -37,6 +37,22 @@ export const useAuthStore = create((set, get) => ({
     if (typeof window === 'undefined') return;
 
     try {
+      // 1. First attempt to restore session via httpOnly cookie
+      try {
+        const profile = await apiClient.get(ApiUrls.AUTH_ME);
+        if (profile.success && profile.data.user) {
+          set({
+            user: profile.data.user,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+          return;
+        }
+      } catch {
+        // httpOnly cookie invalid or absent, check local state
+      }
+
+      // 2. Check fallback stored session
       const storedToken = safeStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const storedUser = safeStorage.getItem(STORAGE_KEYS.USER_DATA);
 
@@ -47,20 +63,6 @@ export const useAuthStore = create((set, get) => ({
           isAuthenticated: true,
           isLoading: false,
         });
-
-        // Verify session freshness with /api/auth/me
-        try {
-          const profile = await apiClient.get(ApiUrls.AUTH_ME);
-          if (profile.success && profile.data.user) {
-            set({ user: profile.data.user });
-            safeStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(profile.data.user));
-          }
-        } catch {
-          // Token invalid or expired
-          safeStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-          safeStorage.removeItem(STORAGE_KEYS.USER_DATA);
-          set({ user: null, token: null, isAuthenticated: false });
-        }
       } else {
         set({ isLoading: false });
       }
@@ -118,9 +120,14 @@ export const useAuthStore = create((set, get) => ({
   },
 
   /**
-   * Signs out current user and clears session credentials.
+   * Signs out current user, clears httpOnly cookie, and clears session credentials.
    */
-  logout: () => {
+  logout: async () => {
+    try {
+      await apiClient.post(ApiUrls.AUTH_LOGOUT);
+    } catch {
+      // Ignore network errors during logout
+    }
     safeStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
     safeStorage.removeItem(STORAGE_KEYS.USER_DATA);
     set({ user: null, token: null, isAuthenticated: false, error: null });

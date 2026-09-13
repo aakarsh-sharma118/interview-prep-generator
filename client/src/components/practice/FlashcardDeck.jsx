@@ -67,6 +67,7 @@ export const FlashcardDeck = ({ flashcards = [] }) => {
           <p className="text-sm text-theme-text-secondary max-w-md mx-auto">{PageStrings.PRACTICE_FINISHED_DESC}</p>
         </div>
         <button
+          type="button"
           onClick={restartDeckWithSpacedSort}
           className="btn btn-primary px-6 rounded-xl font-medium flex items-center justify-center gap-2 mx-auto"
         >
@@ -159,24 +160,28 @@ export const FlashcardDeck = ({ flashcards = [] }) => {
       {/* ── Confidence Interval Rating Buttons ───────────────────────────── */}
       <div className="w-full grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
         <button
+          type="button"
           onClick={() => recordConfidence(CONFIDENCE_LEVELS.AGAIN.value)}
           className="btn btn-outline border-rose-500/40 text-rose-600 dark:text-rose-300 hover:bg-rose-500/10 rounded-xl text-xs font-medium py-2.5"
         >
           {PageStrings.BTN_AGAIN}
         </button>
         <button
+          type="button"
           onClick={() => recordConfidence(CONFIDENCE_LEVELS.HARD.value)}
           className="btn btn-outline border-amber-500/40 text-amber-600 dark:text-amber-300 hover:bg-amber-500/10 rounded-xl text-xs font-medium py-2.5"
         >
           {PageStrings.BTN_HARD}
         </button>
         <button
+          type="button"
           onClick={() => recordConfidence(CONFIDENCE_LEVELS.GOOD.value)}
           className="btn btn-outline border-emerald-500/40 text-emerald-600 dark:text-emerald-300 hover:bg-emerald-500/10 rounded-xl text-xs font-medium py-2.5"
         >
           {PageStrings.BTN_GOOD}
         </button>
         <button
+          type="button"
           onClick={() => recordConfidence(CONFIDENCE_LEVELS.EASY.value)}
           className="btn btn-outline border-blue-500/40 text-blue-600 dark:text-blue-300 hover:bg-blue-500/10 rounded-xl text-xs font-medium py-2.5"
         >

@@ -21,6 +21,13 @@ const signToken = (userId) => {
   return jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 };
 
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+};
+
 /**
  * Registers a new user account.
  *
@@ -63,6 +70,9 @@ export const register = async (req, res) => {
     });
 
     const token = signToken(user._id);
+
+    // Set secure httpOnly cookie
+    res.cookie('token', token, COOKIE_OPTIONS);
 
     logger.info('New user registered successfully', { userId: user._id, email: user.email });
 
@@ -123,6 +133,9 @@ export const login = async (req, res) => {
 
     const token = signToken(user._id);
 
+    // Set secure httpOnly cookie
+    res.cookie('token', token, COOKIE_OPTIONS);
+
     logger.info('User logged in successfully', { userId: user._id, email: user.email });
 
     return res.status(HTTP_STATUS.OK).json({
@@ -143,6 +156,25 @@ export const login = async (req, res) => {
       error: { code: 'SERVER_ERROR', message: 'Login failed due to an internal server error.' },
     });
   }
+};
+
+/**
+ * Logs out user by clearing the httpOnly authentication cookie.
+ *
+ * @param {import('express').Request} req - Request.
+ * @param {import('express').Response} res - Response.
+ */
+export const logout = async (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+  });
+
+  return res.status(HTTP_STATUS.OK).json({
+    success: true,
+    message: 'Logged out successfully.',
+  });
 };
 
 /**

@@ -14,9 +14,9 @@ import { logger } from '../utils/logger.js';
  * @param {Error} err - Error object.
  * @param {import('express').Request} req - Request.
  * @param {import('express').Response} res - Response.
- * @param {import('express').NextFunction} next - Next.
+ * @param {import('express').NextFunction} _next - Next.
  */
-export const errorHandler = (err, req, res, next) => {
+export const errorHandler = (err, req, res, _next) => {
   logger.error('Unhandled request exception', {
     url: req.originalUrl,
     method: req.method,

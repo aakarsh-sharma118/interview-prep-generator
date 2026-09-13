@@ -37,6 +37,7 @@ export default function KitsDashboardPage() {
   const [batchError, setBatchError] = useState(null);
 
   useEffect(() => {
+    router.prefetch(RoutePaths.HOME);
     if (!authLoading && !isAuthenticated) {
       router.push(RoutePaths.LOGIN);
     } else if (isAuthenticated) {
@@ -89,7 +90,18 @@ export default function KitsDashboardPage() {
   }
 
   return (
-    <div className="space-y-8 py-2 sm:py-4">
+    <div className="space-y-6 py-2 sm:py-4">
+      {/* ── Official Breadcrumb Navigation ───────────────────────────────── */}
+      <nav aria-label="Breadcrumb" className="flex items-center space-x-2 text-xs font-mono text-theme-text-muted">
+        <Link href={RoutePaths.HOME} prefetch={true} className="hover:text-brand-indigo transition-colors">
+          Home
+        </Link>
+        <span>/</span>
+        <span className="text-theme-text-primary font-medium">
+          {PageStrings.NAV_DASHBOARD}
+        </span>
+      </nav>
+
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-theme-border pb-5">
         <div>
@@ -97,12 +109,13 @@ export default function KitsDashboardPage() {
             {PageStrings.NAV_DASHBOARD}
           </h1>
           <p className="text-xs font-mono text-theme-text-muted mt-1">
-            {kitsList.length} Interview Preparation Kits Active
+            {kitsList.length} Active Interview Preparation Kits • Tailored to Target Positions
           </p>
         </div>
 
         <div className="flex items-center space-x-3">
           <button
+            type="button"
             onClick={() => setIsBatchModalOpen(true)}
             className="btn btn-sm btn-ghost border border-theme-border rounded-xl text-xs font-mono text-theme-text-secondary hover:text-theme-text-primary flex items-center gap-1.5"
           >
@@ -112,6 +125,7 @@ export default function KitsDashboardPage() {
 
           <Link
             href={RoutePaths.HOME}
+            prefetch={true}
             className="btn btn-sm btn-primary rounded-xl text-xs font-medium flex items-center gap-1.5"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -126,7 +140,7 @@ export default function KitsDashboardPage() {
           <FileText className="w-10 h-10 text-theme-text-muted mx-auto" />
           <h2 className="text-base font-bold text-theme-text-primary">{PageStrings.EMPTY_KITS_TITLE}</h2>
           <p className="text-xs text-theme-text-secondary font-sans leading-relaxed">{PageStrings.EMPTY_KITS_DESC}</p>
-          <Link href={RoutePaths.HOME} className="btn btn-sm btn-primary rounded-xl text-xs font-medium">
+          <Link href={RoutePaths.HOME} prefetch={true} className="btn btn-sm btn-primary rounded-xl text-xs font-medium">
             Generate First Kit
           </Link>
         </div>
@@ -136,11 +150,12 @@ export default function KitsDashboardPage() {
             <Link
               key={kit._id}
               href={RoutePaths.KIT_DETAIL(kit._id)}
+              prefetch={true}
               className="group rounded-3xl bg-theme-surface/90 hover:bg-theme-elevated border border-theme-border hover:border-brand-indigo/40 p-6 backdrop-blur-xl transition-all shadow-card-light dark:shadow-card-dark flex flex-col justify-between space-y-4"
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs font-mono text-theme-text-muted">
-                  <span className="truncate max-w-[150px]">{kit.source.company || 'Direct Posting'}</span>
+                  <span className="truncate max-w-[150px] font-medium text-brand-indigo">{kit.source.company || 'Direct Posting'}</span>
                   <span className="text-brand-emerald flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5" />
                     Verified
@@ -149,6 +164,11 @@ export default function KitsDashboardPage() {
                 <h2 className="text-lg font-display font-bold text-theme-text-primary group-hover:text-brand-indigo transition-colors leading-snug">
                   {kit.role.title}
                 </h2>
+                <div className="flex items-center gap-2 text-[11px] font-mono text-theme-text-muted">
+                  <span>{kit.questions?.length || 0} Questions</span>
+                  <span>•</span>
+                  <span>{kit.flashcards?.length || 0} Flashcards</span>
+                </div>
               </div>
 
               <div className="pt-3 border-t border-theme-border flex items-center justify-between text-xs font-mono text-theme-text-muted">
@@ -156,8 +176,9 @@ export default function KitsDashboardPage() {
                   <Calendar className="w-3.5 h-3.5" />
                   <span>{kit.schedule?.days_available || 5} Days Pacing</span>
                 </span>
-                <span className="group-hover:translate-x-1 transition-transform text-theme-text-primary">
-                  <ArrowRight className="w-4 h-4" />
+                <span className="group-hover:translate-x-1 transition-transform text-brand-indigo font-medium flex items-center gap-1">
+                  <span>Open Studio</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </span>
               </div>
             </Link>
@@ -195,6 +216,7 @@ export default function KitsDashboardPage() {
 
             <div className="flex items-center justify-end space-x-2 pt-2">
               <button
+                type="button"
                 onClick={() => setIsBatchModalOpen(false)}
                 className="btn btn-sm btn-ghost text-theme-text-secondary text-xs"
                 disabled={isUploading}
@@ -202,6 +224,7 @@ export default function KitsDashboardPage() {
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleBatchSubmit}
                 disabled={isUploading || !batchFileText.trim()}
                 className="btn btn-sm btn-primary rounded-xl text-xs font-medium flex items-center gap-1.5"

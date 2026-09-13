@@ -22,10 +22,14 @@ export const requireAuth = async (req, res, next) => {
   try {
     let token = null;
 
-    // 1. Check Authorization header
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      token = authHeader.split(' ')[1];
+    // 1. Check httpOnly cookie first, fallback to Authorization header
+    if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
+    } else {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.split(' ')[1];
+      }
     }
 
     // 2. Reject missing tokens

@@ -28,6 +28,13 @@ export default function HomePage() {
     error,
   } = useKitStore();
 
+  // ── Route Prefetching for Instant Navigation ─────────────────────────────
+  React.useEffect(() => {
+    router.prefetch(RoutePaths.KITS);
+    router.prefetch(RoutePaths.LOGIN);
+    router.prefetch(RoutePaths.REGISTER);
+  }, [router]);
+
   // ── Form Input State ──────────────────────────────────────────────────────
   const [jdText, setJdText] = useState('');
   const [companyUrl, setCompanyUrl] = useState('');
@@ -61,8 +68,43 @@ export default function HomePage() {
     }
   };
 
-  const handleFillSample = () => {
-    setJdText(`Role: Senior Full-Stack Engineer
+  const handleFillSample = (sampleType = 'stripe') => {
+    if (sampleType === 'spotify') {
+      setJdText(`Role: Machine Learning Engineer
+Company: Spotify
+Location: New York, NY / Remote
+
+About the Role:
+Join the Personalization team at Spotify. You will research, train, and deploy large-scale recommendation models serving 500M+ active music and podcast listeners.
+
+Key Requirements:
+- 4+ years building production ML systems using Python, PyTorch, and TensorFlow.
+- Experience with vector search, collaborative filtering, and embedding-based retrieval at scale.
+- Strong knowledge of real-time data streaming (Kafka) and feature store architecture.
+- Track record conducting rigorous A/B experimentation and evaluating offline vs online metric trade-offs.
+- Excellent communication skills partnering with product managers and backend engineers.`);
+      setCompanyUrl('https://spotify.com');
+      setDaysAvailable(5);
+      setFormValidation(null);
+    } else if (sampleType === 'google') {
+      setJdText(`Role: Technical Product Manager
+Company: Google
+Location: Mountain View, CA / Remote
+
+About the Role:
+We are seeking a Technical Product Manager to drive developer platforms and cloud infrastructure tools. You will lead cross-functional engineering teams to define product strategy and roadmap.
+
+Key Requirements:
+- 4+ years of product management experience shipping technical platforms or developer tools.
+- Strong technical fluency in cloud architecture, distributed systems, and API ecosystems.
+- Proven expertise in data-driven prioritization using RICE frameworks and customer user research.
+- Experience defining and measuring key North Star metrics, retention cohorts, and feature engagement.
+- High executive presence with exceptional stakeholder alignment and written PRD documentation.`);
+      setCompanyUrl('https://google.com');
+      setDaysAvailable(7);
+      setFormValidation(null);
+    } else {
+      setJdText(`Role: Senior Full-Stack Engineer
 Company: Stripe
 Location: Remote (US / Global)
 
@@ -75,9 +117,10 @@ Key Requirements:
 - Deep experience designing RESTful and GraphQL APIs with strict idempotency and reliability guarantees.
 - Track record collaborating with product designers, writing clean modular code, and mentoring junior engineers.
 - Strong debugging skills under production traffic and comprehensive automated test habits.`);
-    setCompanyUrl('https://stripe.com');
-    setDaysAvailable(5);
-    setFormValidation(null);
+      setCompanyUrl('https://stripe.com');
+      setDaysAvailable(5);
+      setFormValidation(null);
+    }
   };
 
   return (
@@ -94,6 +137,22 @@ Key Requirements:
         <p className="text-sm sm:text-base text-theme-text-secondary leading-relaxed font-sans max-w-2xl">
           {PageStrings.HERO_SUBTITLE}
         </p>
+
+        {/* ── 3-Step Guided Workflow Banner ───────────────────────────────── */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs font-mono">
+          <div className="p-3 rounded-2xl bg-theme-surface border border-theme-border flex items-center space-x-2.5">
+            <span className="w-6 h-6 rounded-full bg-brand-indigo/15 text-brand-indigo font-bold flex items-center justify-center text-xs">1</span>
+            <span className="text-theme-text-secondary font-medium">Input Job Description</span>
+          </div>
+          <div className="p-3 rounded-2xl bg-theme-surface border border-theme-border flex items-center space-x-2.5">
+            <span className="w-6 h-6 rounded-full bg-brand-emerald/15 text-brand-emerald font-bold flex items-center justify-center text-xs">2</span>
+            <span className="text-theme-text-secondary font-medium">Role Analysis & Questions</span>
+          </div>
+          <div className="p-3 rounded-2xl bg-theme-surface border border-theme-border flex items-center space-x-2.5">
+            <span className="w-6 h-6 rounded-full bg-brand-violet/15 text-brand-violet font-bold flex items-center justify-center text-xs">3</span>
+            <span className="text-theme-text-secondary font-medium">Practice & Mock Screening</span>
+          </div>
+        </div>
       </div>
 
       {/* ── Split Viewport: Inputs (Left) & Pinned Live Console (Right) ───── */}
@@ -105,17 +164,34 @@ Key Requirements:
         >
           {/* Job Description Textarea */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
               <label className="text-xs font-mono font-semibold text-theme-text-secondary block uppercase tracking-wider">
                 {PageStrings.LABEL_JOB_DESCRIPTION}
               </label>
-              <button
-                type="button"
-                onClick={handleFillSample}
-                className="text-[11px] font-mono text-brand-indigo hover:underline transition-colors"
-              >
-                + Fill Sample Data
-              </button>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] font-mono text-theme-text-muted">Fill Sample:</span>
+                <button
+                  type="button"
+                  onClick={() => handleFillSample('stripe')}
+                  className="text-[10px] font-mono px-2 py-0.5 rounded-lg bg-theme-elevated border border-theme-border hover:border-brand-indigo text-theme-text-secondary hover:text-brand-indigo transition-colors"
+                >
+                  Full-Stack
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleFillSample('spotify')}
+                  className="text-[10px] font-mono px-2 py-0.5 rounded-lg bg-theme-elevated border border-theme-border hover:border-brand-emerald text-theme-text-secondary hover:text-brand-emerald transition-colors"
+                >
+                  ML Engineer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleFillSample('google')}
+                  className="text-[10px] font-mono px-2 py-0.5 rounded-lg bg-theme-elevated border border-theme-border hover:border-brand-violet text-theme-text-secondary hover:text-brand-violet transition-colors"
+                >
+                  Product Mgr
+                </button>
+              </div>
             </div>
             <textarea
               value={jdText}

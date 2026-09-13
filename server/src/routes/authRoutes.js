@@ -5,7 +5,7 @@
  */
 
 import { Router } from 'express';
-import { register, login, getMe } from '../controllers/authController.js';
+import { register, login, logout, getMe } from '../controllers/authController.js';
 import { requireAuth } from '../middlewares/authMiddleware.js';
 
 const router = Router();
@@ -16,6 +16,9 @@ router.post('/register', register);
 
 // Authenticate user credentials
 router.post('/login', login);
+
+// Clear authentication session
+router.post('/logout', logout);
 
 // ── Protected Routes ────────────────────────────────────────────────────────
 // Retrieve authenticated profile

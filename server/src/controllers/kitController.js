@@ -12,7 +12,6 @@ import { checkCoverageGaps } from '../services/coverage/coverageChecker.js';
 import { generateQuestionsForCategory, synthesizeCompanyBrief } from '../services/llm/llmService.js';
 import { crawlCompanySite } from '../services/crawler/crawlerService.js';
 import { logger } from '../utils/logger.js';
-import { validateKit } from '../validators/kitSchema.js';
 
 /**
  * Generates and saves a new interview preparation kit.

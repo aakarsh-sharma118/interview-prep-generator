@@ -8,7 +8,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { FlashcardDeck } from '../../../../src/components/practice/FlashcardDeck.jsx';
@@ -17,15 +17,20 @@ import { RoutePaths } from '../../../../src/utils/appConstants.js';
 import { PageStrings } from '../../../../src/utils/pageStrings.js';
 
 export default function PracticeModePage() {
+  const router = useRouter();
   const params = useParams();
   const kitId = params.id;
   const { activeKit, fetchKitById, isLoading } = useKitStore();
 
   useEffect(() => {
-    if (kitId && (!activeKit || activeKit._id !== kitId)) {
-      fetchKitById(kitId);
+    router.prefetch(RoutePaths.KITS);
+    if (kitId) {
+      router.prefetch(RoutePaths.KIT_DETAIL(kitId));
+      if (!activeKit || activeKit._id !== kitId) {
+        fetchKitById(kitId);
+      }
     }
-  }, [kitId, activeKit, fetchKitById]);
+  }, [kitId, router, activeKit, fetchKitById]);
 
   if (isLoading || !activeKit) {
     return (
@@ -37,13 +42,34 @@ export default function PracticeModePage() {
   }
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto py-2 sm:py-4">
+    <div className="space-y-6 max-w-4xl mx-auto py-2 sm:py-4">
+      {/* ── Official Breadcrumb Navigation ───────────────────────────────── */}
+      <nav aria-label="Breadcrumb" className="flex items-center space-x-2 text-xs font-mono text-theme-text-muted">
+        <Link href={RoutePaths.HOME} prefetch={true} className="hover:text-brand-indigo transition-colors">
+          Home
+        </Link>
+        <span>/</span>
+        <Link href={RoutePaths.KITS} prefetch={true} className="hover:text-brand-indigo transition-colors">
+          {PageStrings.NAV_DASHBOARD}
+        </Link>
+        <span>/</span>
+        <Link href={RoutePaths.KIT_DETAIL(activeKit._id)} prefetch={true} className="hover:text-brand-indigo transition-colors truncate max-w-[150px] sm:max-w-[250px]">
+          {activeKit.role.title}
+        </Link>
+        <span>/</span>
+        <span className="text-theme-text-primary font-medium">
+          {PageStrings.PRACTICE_TITLE}
+        </span>
+      </nav>
+
       {/* ── Navigation Header ─────────────────────────────────────────────── */}
       <div className="flex items-center justify-between border-b border-theme-border pb-4 gap-3">
         <div className="flex items-center space-x-3">
           <Link
             href={RoutePaths.KIT_DETAIL(activeKit._id)}
-            className="p-2 rounded-xl bg-theme-surface border border-theme-border text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-elevated transition-colors"
+            prefetch={true}
+            aria-label="Back to Kit Workspace"
+            className="p-2.5 rounded-xl bg-theme-surface border border-theme-border text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-elevated transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
@@ -57,9 +83,10 @@ export default function PracticeModePage() {
 
         <Link
           href={RoutePaths.KIT_DETAIL(activeKit._id)}
-          className="btn btn-sm btn-ghost text-xs font-mono text-theme-text-secondary hover:text-theme-text-primary"
+          prefetch={true}
+          className="btn btn-sm btn-ghost border border-theme-border rounded-xl text-xs font-mono text-theme-text-secondary hover:text-theme-text-primary"
         >
-          Return to Workspace
+          Return to Studio
         </Link>
       </div>
 
