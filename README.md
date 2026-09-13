@@ -178,7 +178,7 @@ The study schedule is calculated via integer arithmetic:
 
 ## 10. Automated Testing
 
-The project uses Vitest across both frontend and backend:
+The project uses Vitest across both frontend and backend, with Husky pre-commit hooks configured to ensure code quality prior to every commit:
 
 ```bash
 # Run full test suite (backend + frontend)
@@ -189,6 +189,9 @@ npm run test:server
 
 # Run frontend tests only
 npm run test:client
+
+# Git hooks (Husky)
+npm run prepare
 ```
 
 All 31 tests pass across unit and integration suites (18 backend + 13 frontend):
@@ -198,6 +201,7 @@ All 31 tests pass across unit and integration suites (18 backend + 13 frontend):
 - User authentication, JWT tokens, and protected routes
 - Spaced-repetition flashcard state management
 - Zustand auth store session lifecycle and demo login handling
+- Pre-commit verification via Husky (`npm test`)
 
 ---
 
