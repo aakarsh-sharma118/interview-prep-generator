@@ -1,0 +1,20 @@
+[
+  {
+    "id": "case-01",
+    "jd": "Senior Full-Stack Engineer\n\nWe are looking for an experienced Senior Full-Stack Engineer to join our core product team.\n\nResponsibilities:\n- Architect and build high-throughput web applications.\n- Collaborate with product designers on user interactions.\n\nRequirements:\n- 5+ years experience with React, Node.js and TypeScript (Required)\n- Experience with MongoDB and Redis caching (Required)\n- Demonstrated experience mentoring junior engineers (Bonus)\n- Familiarity with Kubernetes and cloud CI/CD pipelines (Nice to have)",
+    "company_url": "https://example.com",
+    "days": 5
+  },
+  {
+    "id": "case-02",
+    "jd": "Backend Developer wanted.\nMust know Python and SQL.",
+    "company_url": "https://example.com/careers",
+    "days": 3
+  },
+  {
+    "id": "case-03",
+    "jd": "Cloud DevOps Architect\n\nDesign cloud infrastructure on AWS and Terraform.\nRequirements:\n- AWS Certified Solutions Architect (Must)\n- 4+ years Terraform and Infrastructure as Code (Must)",
+    "company_url": "https://nonexistent-404-unreachable-domain-example.test",
+    "days": 2
+  }
+]

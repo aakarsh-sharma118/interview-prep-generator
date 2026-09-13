@@ -1,0 +1,63 @@
+# ==============================================================================
+# Render Blueprint Specification
+# Author: Aakarsh Sharma
+#
+# Deploys the full application on Render:
+# 1. Backend Web Service (Node.js + Express API)
+# 2. Frontend Web Service (Next.js Application)
+# ==============================================================================
+
+services:
+  # ── Backend API Web Service ────────────────────────────────────────────────
+  - type: web
+    name: prep-kit-api
+    env: node
+    plan: free
+    region: oregon
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: FRONT_END_URL
+        fromService:
+          type: web
+          name: prep-kit-ui
+          property: host
+      - key: ALLOWED_ORIGINS
+        fromService:
+          type: web
+          name: prep-kit-ui
+          property: host
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: LLM_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: MONGODB_URI
+        sync: false # Optional: If empty, embedded in-memory MongoDB starts automatically
+      - key: ALLOW_LOCAL_URLS
+        value: "false"
+
+  # ── Frontend Next.js Web Service ───────────────────────────────────────────
+  - type: web
+    name: prep-kit-ui
+    env: node
+    plan: free
+    region: oregon
+    buildCommand: cd client && npm install && npm run build
+    startCommand: cd client && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_BASE_URL
+        fromService:
+          type: web
+          name: prep-kit-api
+          property: host
